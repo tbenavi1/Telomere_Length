@@ -60,13 +60,15 @@ grep $sequence $in | cut -f1 | sed 's/^/@/' > ${out}/ID.tmp
 #echo $num reads with $sequence
 
 ##Generate a filtered .fastq with only reads with telomere
-awk 'NR==FNR{a[$0];next}$1 in a {x=NR+3}(NR<=x){print} ' ${out}/ID.tmp ${reads} > ${out}/filtered.fastq
+#awk 'NR==FNR{a[$0];next}$1 in a {x=NR+3}(NR<=x){print} ' ${out}/ID.tmp ${reads} > ${out}/filtered.fastq #commented out May 25 2023
+awk 'NR==FNR{a[$0];next}$1 in a {x=NR+3}(NR<=x){print} ' ${out}/ID.tmp <(zcat ${reads}) > ${out}/filtered.fastq #added May 25 2023 to work with fastq.gz read files
 ##Filter out reads < 5kb
 #awk 'BEGIN {FS = "\t" ; OFS = "\n"} {header = $0 ; getline seq ; getline qheader ; getline qseq ; if (length(seq) >= 5000) {print header, seq, qheader, qseq}}' < ${out}/telomere.fastq > ${out}/filtered.fastq
 ##Filter for reads with more than 10 As in the last 100 bp
-$seqkit_path grep -s -R -100:-1 -r -p AAAAAAAAAA ${out}/filtered.fastq > ${out}/As.fastq
+###$seqkit_path grep -s -R -100:-1 -r -p AAAAAAAAAA ${out}/filtered.fastq > ${out}/As.fastq #commented out May 22 2023
 ##Filter for reads with more then 10 Ts in the first 100 bp
-$seqkit_path grep -s -R 1:100 -r -p TTTTTTTTTT ${out}/filtered.fastq > ${out}/Ts.fastq
+###$seqkit_path grep -s -R 1:100 -r -p TTTTTTTTTT ${out}/filtered.fastq > ${out}/Ts.fastq #commented out May 22 2023
 ##Combine the reads that are tailed
-cat ${out}/As.fastq ${out}/Ts.fastq
-rm -r $out
+###cat ${out}/As.fastq ${out}/Ts.fastq #commented out May 22 2023
+cat ${out}/filtered.fastq #added May 22 2023
+#rm -r $out #commentedout May 24 2023

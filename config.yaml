@@ -1,16 +1,16 @@
 ##Software to install
-Minimap2: /usr/local/bin/minimap2
-TideHunter: /home/gmoney/miniconda3/bin/TideHunter
-Porechop: /home/gmoney/repos/Porechop
-samtools: /home/gmoney/miniconda3/bin/samtools
-bedtools: /home/gmoney/miniconda3/bin/bedtools
+Minimap2: /home/rranallo-benavidez/software/minimap2/minimap2
+TideHunter: /home/rranallo-benavidez/mambaforge/envs/snakemake/bin/TideHunter
+Porechop: /home/rranallo-benavidez/software/Porechop
+samtools: /home/rranallo-benavidez/software/samtools-1.17/bin/samtools
+bedtools: /home/rranallo-benavidez/software/bedtools2/bin/bedtools
 seqkit: /usr/local/bin/seqkit
 ##References
 #Must download
-starts: telo_start_position_WT_2kb.txt
+starts: telo_start_position_T2T.txt
 coverage: 2
-ref: /atium/Data/projects/sam_telo_AG/Num2kbtelo11RsacCer3.fa
-outdir: /atium/Data/projects/sam_telo_AG/snakemake_out
-reads: /atium/Data/projects/sam_telo_AG/210220barcode10.fastq
-telo_seq: GTGTGTGGGTGTG 
-threads: 48
+ref: /scratch/mkyriakidou/ref/CHM13v2/chm13v2.0.fasta
+outdir: results
+reads: /labs/barthel/fastq_DoNotTouch/20230424_0924_3F_PAK78455_fb2f0c71/guppy_6.4.6+ae70e8f/fastq_pass/NHA_Primary_p1_BR_Whole_C1_OGL14_L66007_PAK78455_NoIndex_L001_Pass.fastq.gz
+telo_seq: TTAGGG
+threads: 32

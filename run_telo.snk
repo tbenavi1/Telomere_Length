@@ -32,6 +32,8 @@ ref = config["ref"]
 
 rule all:
     input:
+        #expand( outdir + "/tailed.fastq"),
+        #expand( outdir + "/chopped.primary.bed"),
         expand( outdir + "/telomere_lengths.tsv")
 
 rule Tidehunter:
@@ -41,11 +43,12 @@ rule Tidehunter:
         out = outdir + "/cons.out"
     params:
         telo=config["telo_seq"],
-        threads = config["threads"],
+        #threads = config["threads"],
         tidehunter = config["TideHunter"]
-    message: """Running Tidehunter"""
-    run:
-        shell("{params.tidehunter} -t {params.threads} -f 2 {input.reads} > {output.out}")
+    threads: config["threads"]
+    #message: """Running Tidehunter"""
+    shell:
+        "{params.tidehunter} -t {threads} -f 2 {input.reads} > {output.out}"
 
 rule filter_fq:
     input:
@@ -56,21 +59,23 @@ rule filter_fq:
         seqpath = config["seqkit"]
     output:
         fq = outdir + "/tailed.fastq"
-    message: """Filtering Tidehunter output"""
-    run:
-        shell("./filter.sh -i {input.cons} -r {input.reads} -s {params.telo} -p {params.seqpath} > {output.fq}")
+    #message: """Filtering Tidehunter output"""
+    shell:
+        "./filter.sh -i {input.cons} -r {input.reads} -s {params.telo} -p {params.seqpath} > {output.fq}"
 
 rule Porechop:
     input:
         fastq=rules.filter_fq.output
     params:
         porechop = config["Porechop"]
+    threads: config["threads"]
     output:
         chopfq = outdir + "/chopped.fastq"
-    message: """Replacing adapters.py and running Porechop"""
-    run:
-        shell("cp adapters.py {params.porechop}/porechop"),
-        shell("{params.porechop}/porechop-runner.py -i {input.fastq} -o {output.chopfq}")
+    #message: """Replacing adapters.py and running Porechop"""
+    shell:
+        "cp adapters.py {params.porechop}/porechop; "
+        "{params.porechop}/porechop-runner.py -t {threads} -i {input.fastq} -o {output.chopfq}"
+
 rule Minimap:
     input:
         fastq=rules.Porechop.output
@@ -79,14 +84,16 @@ rule Minimap:
         samtools = config["samtools"],
         ref = config["ref"],
         bedtools = config["bedtools"]
+    threads: config["threads"]
     output:
         bam = outdir + "/chopped.primary.bam",
         bed = outdir + "/chopped.primary.bed"
-    message: """Mapping chopped reads with Minimap2"""
-    run:
-        shell("{params.minimap} -ax map-ont {params.ref} {input.fastq} | {params.samtools} view -Sbh -bq 20 -F 2048 -F 256 | {params.samtools} sort -o {output.bam}"),
-        shell("{params.samtools} index {output.bam}"),
-        shell("{params.bedtools} bamtobed -i {output.bam} > {output.bed}")
+    #message: """Mapping chopped reads with Minimap2"""
+    shell:
+        "{params.minimap} -ax map-ont {params.ref} {input.fastq} -t {threads} | {params.samtools} view -@ {threads} -Sbh -bq 20 -F 2048 -F 256 | {params.samtools} sort -@ {threads} -o {output.bam}; "
+        "{params.samtools} index -@ {threads} {output.bam}; "
+        "{params.bedtools} bamtobed -i {output.bam} > {output.bed}"
+
 rule Calculate_length:
     input:
         bed=rules.Minimap.output.bed,
@@ -95,6 +102,6 @@ rule Calculate_length:
         cov = config["coverage"]
     output:
         out = outdir + "/telomere_lengths.tsv"
-    message: """Calculating telomere lengths"""
-    run:
-        shell("./Telo_length_AG.R -c {params.cov} -s {input.starts} -i {input.bed} -o {output.out}")
+    #message: """Calculating telomere lengths"""
+    shell:
+        "./Telo_length_AG.R -c {params.cov} -s {input.starts} -i {input.bed} -o {output.out}"

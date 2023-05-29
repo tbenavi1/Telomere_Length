@@ -9,14 +9,14 @@ if(!require(tidyverse)){
 }
 
 #### define function ####
-
+chrs = c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY") #added May 25 2023
 get_lengths <- function(coverage) {
   df1 <- data.frame(matrix(ncol = 3, nrow = 0))
   x <- c("length", "telomere", "genotype")
   colnames(df1) <- x
   incorrect<-vector()
 i<-0
-  for (chr in c(1:16)){
+  for (chr in chrs){ #edited May 25 2023, use to be c(1:15)
     for (telo in c("L", "R")){
       i<-i+1
     data<-subset(pulse, pulse$chrom == chr)
