@@ -19,6 +19,10 @@ do
       seqkit_path=$2
       shift 2
       ;;
+    -n | --name ) #sample name
+      name=$2
+      shift 2
+      ;;
     -h | --help ) # help message
       helpmsg=1
       shift 1
@@ -43,6 +47,7 @@ if [ ! -z $helpmsg ];then
   ;-r/--reads;;Fastq
   ;-s/--sequence;;Telomere sequence (default GTGTGTGGGTGTG)
   ;-p/--seqkit_path;;path to seqkit executable
+  ;-n/--name;;sample name
   ;-h/--help;;show help message and exit"|\
     tr ";" "\t"
   echo $errormsg
@@ -52,8 +57,8 @@ if [ -z $sequence ];then
   sequence=GTGTGTGGGTGTG
 fi
 
-mkdir -p ./tmp
-out=./tmp
+mkdir -p ./tmp_${name}
+out=./tmp_${name}
 
 grep $sequence $in | cut -f1 | sed 's/^/@/' > ${out}/ID.tmp
 #num=$(grep $sequence $in | cut -f1 | wc -l)

@@ -32,15 +32,15 @@ ref = config["ref"]
 
 rule all:
     input:
-        #expand( outdir + "/tailed.fastq"),
-        #expand( outdir + "/chopped.primary.bed"),
-        expand( outdir + "/telomere_lengths.tsv")
+        #expand( outdir + "/{sample}/tailed.fastq", sample=config["reads"]),
+        #expand( outdir + "/{sample}/chopped.primary.bed", sample=config["reads"]),
+        expand( outdir + "/{sample}/telomere_lengths.tsv", sample=config["reads"])
 
 rule Tidehunter:
     input:
-        reads = config["reads"]
+        reads = lambda wildcards: config["reads"][wildcards.sample]
     output:
-        out = outdir + "/cons.out"
+        out = outdir + "/{sample}/cons.out"
     params:
         telo=config["telo_seq"],
         #threads = config["threads"],
@@ -53,15 +53,16 @@ rule Tidehunter:
 rule filter_fq:
     input:
         cons=rules.Tidehunter.output, 
-        reads = config["reads"]
+        reads = lambda wildcards: config["reads"][wildcards.sample]
     params:
         telo = config["telo_seq"],
-        seqpath = config["seqkit"]
+        seqpath = config["seqkit"],
+        sample = lambda wildcards: wildcards.sample
     output:
-        fq = outdir + "/tailed.fastq"
+        fq = outdir + "/{sample}/tailed.fastq"
     #message: """Filtering Tidehunter output"""
     shell:
-        "./filter.sh -i {input.cons} -r {input.reads} -s {params.telo} -p {params.seqpath} > {output.fq}"
+        "./filter.sh -i {input.cons} -r {input.reads} -s {params.telo} -p {params.seqpath} -n {params.sample} > {output.fq}"
 
 rule Porechop:
     input:
@@ -70,7 +71,7 @@ rule Porechop:
         porechop = config["Porechop"]
     threads: config["threads"]
     output:
-        chopfq = outdir + "/chopped.fastq"
+        chopfq = outdir + "/{sample}/chopped.fastq"
     #message: """Replacing adapters.py and running Porechop"""
     shell:
         "cp adapters.py {params.porechop}/porechop; "
@@ -86,8 +87,8 @@ rule Minimap:
         bedtools = config["bedtools"]
     threads: config["threads"]
     output:
-        bam = outdir + "/chopped.primary.bam",
-        bed = outdir + "/chopped.primary.bed"
+        bam = outdir + "/{sample}/chopped.primary.bam",
+        bed = outdir + "/{sample}/chopped.primary.bed"
     #message: """Mapping chopped reads with Minimap2"""
     shell:
         "{params.minimap} -ax map-ont {params.ref} {input.fastq} -t {threads} | {params.samtools} view -@ {threads} -Sbh -bq 20 -F 2048 -F 256 | {params.samtools} sort -@ {threads} -o {output.bam}; "
@@ -101,7 +102,7 @@ rule Calculate_length:
     params:
         cov = config["coverage"]
     output:
-        out = outdir + "/telomere_lengths.tsv"
+        out = outdir + "/{sample}/telomere_lengths.tsv"
     #message: """Calculating telomere lengths"""
     shell:
         "./Telo_length_AG.R -c {params.cov} -s {input.starts} -i {input.bed} -o {output.out}"

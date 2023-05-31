@@ -11,6 +11,10 @@ starts: telo_start_position_T2T.txt
 coverage: 2
 ref: /scratch/mkyriakidou/ref/CHM13v2/chm13v2.0.fasta
 outdir: results
-reads: /labs/barthel/fastq_DoNotTouch/20230424_0924_3F_PAK78455_fb2f0c71/guppy_6.4.6+ae70e8f/fastq_pass/NHA_Primary_p1_BR_Whole_C1_OGL14_L66007_PAK78455_NoIndex_L001_Pass.fastq.gz
+reads:
+  "NHA_E6E7_3_p25": /labs/barthel/fastq_DoNotTouch/20230424_0924_1F_PAK72403_ce355ea4/guppy_6.4.6+ae70e8f/fastq_pass/NHA_E6E73_p25_BR_Whole_C1_OGL14_L66005_PAK72403_NoIndex_L001_Pass.fastq.gz
+  "NHA_E6E7_3_p40": /labs/barthel/fastq_DoNotTouch/20230424_0924_3D_PAK72474_3914c8b9/guppy_6.4.6+ae70e8f/fastq_pass/NHA_E6E73_p40_BR_Whole_C1_OGL14_L66006_PAK72474_NoIndex_L001_Pass.fastq.gz
+  "NHA_p1": /labs/barthel/fastq_DoNotTouch/20230424_0924_3F_PAK78455_fb2f0c71/guppy_6.4.6+ae70e8f/fastq_pass/NHA_Primary_p1_BR_Whole_C1_OGL14_L66007_PAK78455_NoIndex_L001_Pass.fastq.gz
+  "uwashington": /scratch/rranallo-benavidez/data/uwashington.fastq.gz 
 telo_seq: TTAGGG
 threads: 32
